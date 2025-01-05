@@ -46,7 +46,9 @@ dependencies = [
     "fasttext==0.9.3",
     "ragas==0.1.7",
     "dataclasses-json==0.6.4",
-    "llama-index==0.10.30"
+    "llama-index==0.10.30",
+    "protobuf==3.19.6",
+    "aiohttp==3.10",
 ]
 
 [project.scripts]
