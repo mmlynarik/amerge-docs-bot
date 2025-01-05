@@ -118,16 +118,7 @@ async def app_mention_handler(event: dict, say: Callable, logger: logging.Logger
         logger.error(f"Error posting message: {e}")
 
 
-def parse_reaction(reaction: str) -> int:
-    """
-    Parses the reaction and returns the corresponding rating value.
-
-    Args:
-        reaction (str): The reaction emoji.
-
-    Returns:
-        int: The rating value (-1, 0, or 1).
-    """
+def parse_reaction_into_rating(reaction: str) -> int:
     if reaction == "+1":
         return 1
     elif reaction == "-1":
@@ -138,15 +129,9 @@ def parse_reaction(reaction: str) -> int:
 
 @app.event("reaction_added")
 async def reaction_added_handler(event: dict) -> None:
-    """
-    Handles the event when a reaction is added to a message.
-
-    Args:
-        event (dict): The event details.
-
-    """
+    """Handles the event when a reaction is added to a message"""
     message_ts = event["item"]["ts"]
-    rating = parse_reaction(event["reaction"])
+    rating = parse_reaction_into_rating(event["reaction"])
 
     await api_client.create_feedback(
         feedback_id=event["event_ts"],
