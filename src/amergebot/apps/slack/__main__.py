@@ -12,7 +12,6 @@ It also communicates with an external API for processing queries and storing cha
 import argparse
 import asyncio
 import logging
-from functools import partial
 from typing import Callable
 
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
@@ -22,7 +21,8 @@ from slack_sdk.web import SlackResponse
 from amergebot.api.client import AsyncAPIClient
 from amergebot.apps.slack.config import SlackAppEnConfig, SlackAppJaConfig
 from amergebot.apps.slack.formatter import MrkdwnFormatter
-from amergebot.apps.utils import format_response
+
+# from amergebot.apps.utils import format_response
 
 
 parser = argparse.ArgumentParser()
@@ -48,9 +48,7 @@ app = AsyncApp(token=config.SLACK_BOT_TOKEN)
 api_client = AsyncAPIClient(url=config.WANDBOT_API_URL)
 
 
-async def send_message(
-    say: Callable, message: str, thread: str = None
-) -> SlackResponse:
+async def send_message(say: Callable, message: str, thread: str = None) -> SlackResponse:
     message = MrkdwnFormatter()(message)
     if thread is not None:
         return await say(text=message, thread_ts=thread)
@@ -59,37 +57,23 @@ async def send_message(
 
 
 @app.event("app_mention")
-async def command_handler(
-    event: dict, say: Callable, logger: logging.Logger
-) -> None:
-    """
-    Handles the command when the app is mentioned in a message.
-
-    Args:
-        body (dict): The event body containing the message details.
-        say (function): The function to send a message.
-        logger (Logger): The logger instance for logging errors.
-
-    Raises:
-        Exception: If there is an error posting the message.
-    """
+async def app_mention_handler(event: dict, say: Callable, logger: logging.Logger) -> None:
+    """Handles app mention in a message. Available handler args are: slack_bolt.kwargs_injection.async_args"""
     try:
-        query = event.get("text")
+        # query = event.get("text")
         user = event.get("user")
+
+        # Post message to already existing thread (id = thread_ts) or start new thread (id = ts)
         thread_id = event.get("thread_ts", None) or event.get("ts", None)
-        say = partial(say, token=config.SLACK_BOT_TOKEN)
 
-        # chat_history = await api_client.get_chat_history(
-        #     application=config.APPLICATION, thread_id=thread_id
-        # )
+        # chat_history = await api_client.get_chat_history(application=config.APPLICATION, thread_id=thread_id)
 
-        # if not chat_history:
-        # send out the intro message
-        await send_message(
-            say=say,
-            message=config.INTRO_MESSAGE.format(user=user),
-            thread=thread_id,
-        )
+        if not event.get("thread_ts", None):
+            await send_message(
+                say=say,
+                message=config.INTRO_MESSAGE.format(user=user),
+                thread=thread_id,
+            )
 
         # # process the query through the api
         # api_response = await api_client.query(
@@ -104,25 +88,25 @@ async def command_handler(
         #     config.OUTRO_MESSAGE,
         # )
 
-        # # send the response
-        # sent_message = await send_message(
-        #     say=say, message=response, thread=thread_id
-        # )
+        # send the response
+        sent_message = await send_message(
+            say=say, message="I don't have anything for you now.", thread=thread_id
+        )
 
-        # await app.client.reactions_add(
-        #     channel=body["event"]["channel"],
-        #     timestamp=sent_message["ts"],
-        #     name="thumbsup",
-        #     token=config.SLACK_BOT_TOKEN,
-        # )
-        # await app.client.reactions_add(
-        #     channel=body["event"]["channel"],
-        #     timestamp=sent_message["ts"],
-        #     name="thumbsdown",
-        #     token=config.SLACK_BOT_TOKEN,
-        # )
+        await app.client.reactions_add(
+            channel=event["channel"],
+            timestamp=sent_message["ts"],
+            name="thumbsup",
+            token=config.SLACK_BOT_TOKEN,
+        )
+        await app.client.reactions_add(
+            channel=event["channel"],
+            timestamp=sent_message["ts"],
+            name="thumbsdown",
+            token=config.SLACK_BOT_TOKEN,
+        )
 
-        # #  save the question answer to the database
+        #  save the question answer to the database
         # await api_client.create_question_answer(
         #     thread_id=thread_id,
         #     question_answer_id=sent_message["ts"],
@@ -153,7 +137,7 @@ def parse_reaction(reaction: str) -> int:
 
 
 @app.event("reaction_added")
-async def handle_reaction_added(event: dict) -> None:
+async def reaction_added_handler(event: dict) -> None:
     """
     Handles the event when a reaction is added to a message.
 
@@ -161,28 +145,14 @@ async def handle_reaction_added(event: dict) -> None:
         event (dict): The event details.
 
     """
-    channel_id = event["item"]["channel"]
     message_ts = event["item"]["ts"]
+    rating = parse_reaction(event["reaction"])
 
-    conversation = await app.client.conversations_replies(
-        channel=channel_id,
-        ts=message_ts,
-        inclusive=True,
-        limit=1,
-        token=config.SLACK_BOT_TOKEN,
+    await api_client.create_feedback(
+        feedback_id=event["event_ts"],
+        question_answer_id=message_ts,
+        rating=rating,
     )
-    messages = conversation.get(
-        "messages",
-    )
-    if messages and len(messages):
-        thread_ts = messages[0].get("thread_ts")
-        if thread_ts:
-            rating = parse_reaction(event["reaction"])
-            await api_client.create_feedback(
-                feedback_id=event["event_ts"],
-                question_answer_id=message_ts,
-                rating=rating,
-            )
 
 
 async def main():
