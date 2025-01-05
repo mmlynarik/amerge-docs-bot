@@ -15,40 +15,22 @@ import logging
 from typing import Callable
 
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
-from slack_bolt.async_app import AsyncApp
+from slack_bolt.async_app import AsyncApp, AsyncSay
 from slack_sdk.web import SlackResponse
 
 from amergebot.api.client import AsyncAPIClient
-from amergebot.apps.slack.config import SlackAppEnConfig, SlackAppJaConfig
+from amergebot.apps.slack.config import SlackAppConfig
 from amergebot.apps.slack.formatter import MrkdwnFormatter
 
 # from amergebot.apps.utils import format_response
 
 
-parser = argparse.ArgumentParser()
-
-parser.add_argument(
-    "-l",
-    "--language",
-    default="en",
-    help="Language of the bot",
-    type=str,
-    choices=["en", "ja"],
-)
-
-args = parser.parse_args()
-
-if args.language == "ja":
-    config = SlackAppJaConfig()
-else:
-    config = SlackAppEnConfig()
-
-
+config = SlackAppConfig()
 app = AsyncApp(token=config.SLACK_BOT_TOKEN)
 api_client = AsyncAPIClient(url=config.WANDBOT_API_URL)
 
 
-async def send_message(say: Callable, message: str, thread: str = None) -> SlackResponse:
+async def send_message(say: AsyncSay, message: str, thread: str = None) -> SlackResponse:
     message = MrkdwnFormatter()(message)
     if thread is not None:
         return await say(text=message, thread_ts=thread)
@@ -57,7 +39,7 @@ async def send_message(say: Callable, message: str, thread: str = None) -> Slack
 
 
 @app.event("app_mention")
-async def app_mention_handler(event: dict, say: Callable, logger: logging.Logger) -> None:
+async def app_mention_handler(event: dict, say: AsyncSay, logger: logging.Logger) -> None:
     """Handles app mention in a message. Available handler args are: slack_bolt.kwargs_injection.async_args"""
     try:
         # query = event.get("text")
@@ -119,12 +101,7 @@ async def app_mention_handler(event: dict, say: Callable, logger: logging.Logger
 
 
 def parse_reaction_into_rating(reaction: str) -> int:
-    if reaction == "+1":
-        return 1
-    elif reaction == "-1":
-        return -1
-    else:
-        return 0
+    return 1 if reaction == "+1" else (-1 if reaction == "-1" else 0)
 
 
 @app.event("reaction_added")
