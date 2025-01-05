@@ -1,0 +1,79 @@
+[project]
+name = "amerge-docs-bot"
+version = "0.1.0"
+description = "Q/A bot for Amerge docs"
+readme = "README.md"
+requires-python = ">=3.10.0,<=3.12.4"
+authors = [
+    { name = "Miroslav Mlynarik", email = "miroslav.mlynarik@gmail.com" },
+]
+dependencies = [
+    "numpy==1.26.1",
+    "pandas==2.1.2",
+    "pydantic-settings==2.0.3",
+    "gitpython==3.1.44",
+    "giturlparse==0.12.0",
+    "scikit-learn==1.3.2",
+    "python-dotenv==1.0.0",
+    "slack-bolt==1.18.0",
+    "slack-sdk==3.21.3",
+    "discord==2.3.2",
+    "markdown==3.5.1",
+    "fastapi==0.109.2",
+    "tree-sitter-languages",
+    "markdownify==0.11.6",
+    "uvicorn==0.24.0",
+    "openai",
+    "weave==0.50.12",
+    "colorlog==6.8.0",
+    "litellm==1.15.1",
+    "google-cloud-bigquery==3.14.1",
+    "db-dtypes==1.2.0",
+    "python-frontmatter==1.1.0",
+    "pymdown-extensions==10.5",
+    "langchain",
+    "langchain-openai",
+    "langchain-experimental",
+    "langchain-core",
+    "langchain-cohere",
+    "langchain-chroma",
+    "simsimd==3.7.7",
+    "nbformat==5.10.4",
+    "nbconvert==7.16.4",
+    "wandb==0.17.5",
+    "tree-sitter",
+    "pysqlite3-binary==0.5.4",
+    "fasttext==0.9.3",
+    "ragas==0.1.7",
+    "dataclasses-json==0.6.4",
+    "llama-index==0.10.30"
+]
+
+[project.scripts]
+
+[tool.uv]
+package = true
+dev-dependencies = [
+    "black==24.4.2",
+    "isort>=5.13.2",
+    "mypy==1.10.0",
+    "pre-commit==3.6.0",
+    "ruff==0.4.6",
+]
+
+[tool.ruff]
+line-length = 110
+exclude = ["experimental/", ".venv"]
+
+[tool.black]
+line-length = 110
+
+[tool.isort]
+profile = "black"
+line_length = 110
+
+[tool.mypy]
+ignore_missing_imports = true
+check_untyped_defs = true
+strict_equality = false
+exclude = ["notebooks/", "migrations/"]
