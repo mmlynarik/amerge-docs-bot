@@ -25,9 +25,7 @@ logger = get_logger(__name__)
 
 
 class DataSource(BaseSettings):
-    cache_dir: pathlib.Path = Field(
-        "data/cache/raw_data", env="WANDBOT_CACHE_DIR"
-    )
+    cache_dir: pathlib.Path = Field("data/cache/raw_data", env="WANDBOT_CACHE_DIR")
     ignore_cache: bool = False
     remote_path: str = ""
     repo_path: str = ""
@@ -48,32 +46,22 @@ class DataStoreConfig(BaseModel):
     @model_validator(mode="after")
     def _set_cache_paths(cls, values: "DataStoreConfig") -> "DataStoreConfig":
         values.docstore_dir = (
-            values.data_source.cache_dir
-            / "_".join(values.name.split())
-            / values.docstore_dir
+            values.data_source.cache_dir / "_".join(values.name.split()) / values.docstore_dir
         )
         data_source = values.data_source
 
         if data_source.repo_path:
-            data_source.is_git_repo = (
-                urlparse(data_source.repo_path).netloc == "github.com"
-            )
+            data_source.is_git_repo = urlparse(data_source.repo_path).netloc == "github.com"
             local_path = urlparse(data_source.repo_path).path.split("/")[-1]
             if not data_source.local_path:
-                data_source.local_path = (
-                    data_source.cache_dir
-                    / "_".join(values.name.split())
-                    / local_path
-                )
+                data_source.local_path = data_source.cache_dir / "_".join(values.name.split()) / local_path
             if data_source.is_git_repo:
                 if data_source.git_id_file is None:
                     logger.debug(
                         "The source data is a git repo but no git_id_file is set."
                         " Attempting to use the default ssh id file"
                     )
-                    data_source.git_id_file = (
-                        pathlib.Path.home() / ".ssh" / "id_rsa"
-                    )
+                    data_source.git_id_file = pathlib.Path.home() / ".ssh" / "id_rsa"
         values.data_source = data_source
 
         return values
@@ -91,36 +79,6 @@ class DocodileEnglishStoreConfig(DataStoreConfig):
     )
     language: str = "en"
     docstore_dir: pathlib.Path = pathlib.Path("wandb_documentation_en")
-
-
-class DocodileJapaneseStoreConfig(DataStoreConfig):
-    name: str = "Japanese Documentation"
-    source_type: str = "documentation"
-    data_source: DataSource = DataSource(
-        remote_path="https://docs.wandb.ai/ja/",
-        repo_path="https://github.com/wandb/docodile",
-        base_path="docs",
-        file_patterns=["*.md"],
-        is_git_repo=True,
-        branch="japanese_docs",
-    )
-    language: str = "ja"
-    docstore_dir: pathlib.Path = pathlib.Path("wandb_documentation_ja")
-
-
-class DocodileKoreanStoreConfig(DataStoreConfig):
-    name: str = "Korean Documentation"
-    source_type: str = "documentation"
-    data_source: DataSource = DataSource(
-        remote_path="https://docs.wandb.ai/ko/",
-        repo_path="https://github.com/wandb/docodile",
-        base_path="docs",
-        file_patterns=["*.md"],
-        is_git_repo=True,
-        branch="korean_docs",
-    )
-    language: str = "ko"
-    docstore_dir: pathlib.Path = pathlib.Path("wandb_documentation_ko")
 
 
 class ExampleCodeStoreConfig(DataStoreConfig):
@@ -257,15 +215,11 @@ class FCReportsStoreConfig(DataStoreConfig):
 
     @model_validator(mode="after")
     def _set_cache_paths(cls, values: "DataStoreConfig") -> "DataStoreConfig":
-        values.docstore_dir = (
-            values.data_source.cache_dir / values.name / values.docstore_dir
-        )
+        values.docstore_dir = values.data_source.cache_dir / values.name / values.docstore_dir
         data_source = values.data_source
 
         data_source.local_path = (
-            data_source.cache_dir
-            / values.name
-            / f"reports_{int(datetime.datetime.now().timestamp())}.json"
+            data_source.cache_dir / values.name / f"reports_{int(datetime.datetime.now().timestamp())}.json"
         )
         values.data_source = data_source
 
@@ -273,9 +227,7 @@ class FCReportsStoreConfig(DataStoreConfig):
 
 
 class VectorStoreConfig(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="allow"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
     collection_name: str = "vectorstore"
     persist_dir: pathlib.Path = pathlib.Path("data/cache/vectorstore")
     embedding_model_name: str = "text-embedding-3-small"

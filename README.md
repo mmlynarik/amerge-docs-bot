@@ -19,11 +19,11 @@ This release introduces a number of exciting updates and improvements:
 These updates are part of our ongoing commitment to improve performance and usability.
 
 ## Evaluation
-English 
+English
 | wandbot version  | Comment  | response accuracy |
 |---|---|---|
 | 1.0.0 | our baseline wandbot |  53.8 % |
-| 1.1.0 | improvement over baseline; in production for the longest | 72.5 %  | 
+| 1.1.0 | improvement over baseline; in production for the longest | 72.5 %  |
 | 1.2.0 | our new enhanced wandbot | 81.6 % |
 
 
@@ -45,17 +45,14 @@ Japanese
 
 ## Installation
 
-The project is built with Python version `>=3.10.0,<3.11` and utilizes [poetry](https://python-poetry.org/) for managing dependencies. Follow the steps below to install the necessary dependencies:
+The project is built with Python version `>=3.11.0` and utilizes [uv](https://python-poetry.org/) for managing dependencies. Follow the steps below to install the necessary dependencies:
 
 ```bash
-git clone git@github.com:wandb/wandbot.git
-pip install poetry
-cd wandbot
-poetry install --all-extras
-# Depending on which platform you want to run on run the following command:
-# poetry install --extras discord # for discord
-# poetry install --extras slack # for slack
-# poetry install --extras api # for api
+git clone git@github.com:mmlynarik/amerge-docs-bot.git
+pip install uv
+cd amerge-docs-bot
+uv sync
+mkdir data/cache
 ```
 
 ## Usage
@@ -131,9 +128,9 @@ Set up for evaluation
 
 wandbot/src/wandbot/evaluation/config.py
 - `evaluation_strategy_name` : attribute name in Weave Evaluation dashboard
-- `eval_dataset` : 
+- `eval_dataset` :
     - [Latest English evaluation dataset](https://wandb.ai/wandbot/wandbot-eval/weave/datasets?peekPath=%2Fwandbot%2Fwandbot-eval%2Fobjects%2Fwandbot_eval_data%2Fversions%2FeCQQ0GjM077wi4ykTWYhLPRpuGIaXbMwUGEB7IyHlFU%3F%26): "weave:///wandbot/wandbot-eval/object/wandbot_eval_data:eCQQ0GjM077wi4ykTWYhLPRpuGIaXbMwUGEB7IyHlFU"
-    - [Latest Japanese evaluation dataset](https://wandb.ai/wandbot/wandbot-eval-jp/weave/datasets?peekPath=%2Fwandbot%2Fwandbot-eval-jp%2Fobjects%2Fwandbot_eval_data_jp%2Fversions%2FoCWifIAtEVCkSjushP0bOEc5GnhsMUYXURwQznBeKLA%3F%26): "weave:///wandbot/wandbot-eval-jp/object/wandbot_eval_data_jp:oCWifIAtEVCkSjushP0bOEc5GnhsMUYXURwQznBeKLA" 
+    - [Latest Japanese evaluation dataset](https://wandb.ai/wandbot/wandbot-eval-jp/weave/datasets?peekPath=%2Fwandbot%2Fwandbot-eval-jp%2Fobjects%2Fwandbot_eval_data_jp%2Fversions%2FoCWifIAtEVCkSjushP0bOEc5GnhsMUYXURwQznBeKLA%3F%26): "weave:///wandbot/wandbot-eval-jp/object/wandbot_eval_data_jp:oCWifIAtEVCkSjushP0bOEc5GnhsMUYXURwQznBeKLA"
 - `eval_judge_model` : model used for judge
 - `wandb_entity` : wandb entity name for record
 - `wandb_project` : wandb project name for record
