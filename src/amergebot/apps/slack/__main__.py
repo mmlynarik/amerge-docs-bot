@@ -38,7 +38,7 @@ async def send_message(say: AsyncSay, message: str, thread: str = None) -> Slack
 
 @app.event("app_mention")
 async def app_mention_handler(event: dict, say: AsyncSay, logger: logging.Logger) -> None:
-    """Handles app mention in a message. Available handler args are: slack_bolt.kwargs_injection.async_args"""
+    """Handles app mention in a message. For handler args check: slack_bolt.kwargs_injection.async_args"""
     try:
         # query = event.get("text")
         user = event.get("user")
