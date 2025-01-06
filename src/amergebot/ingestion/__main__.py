@@ -8,8 +8,8 @@ logger = get_logger(__name__)
 
 
 def main():
-    project = os.environ.get("WANDB_PROJECT", "wandbot-dev")
-    entity = os.environ.get("WANDB_ENTITY", "wandbot")
+    project = os.environ.get("WANDB_PROJECT")
+    entity = os.environ.get("WANDB_ENTITY")
 
     raw_artifact = prepare_data.load(project, entity)
     preprocessed_artifact = preprocess_data.load(project, entity, raw_artifact)
