@@ -9,10 +9,8 @@ It also communicates with an external API for processing queries and storing cha
 
 """
 
-import argparse
 import asyncio
 import logging
-from typing import Callable
 
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
 from slack_bolt.async_app import AsyncApp, AsyncSay
@@ -48,7 +46,7 @@ async def app_mention_handler(event: dict, say: AsyncSay, logger: logging.Logger
         # Post message to already existing thread (id = thread_ts) or start new thread (id = ts)
         thread_id = event.get("thread_ts", None) or event.get("ts", None)
 
-        # chat_history = await api_client.get_chat_history(application=config.APPLICATION, thread_id=thread_id)
+        # chathistory = await api_client.get_chat_history(application=config.APPLICATION, thread_id=thread_id)
 
         if not event.get("thread_ts", None):
             await send_message(
